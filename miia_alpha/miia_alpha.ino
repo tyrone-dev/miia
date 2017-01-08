@@ -21,63 +21,92 @@ int NewArray[4] = {0,0,0,0};
 
 //function declarations
 //==================================
-void sweep_write(int NewArray);
-void walk_forward(int steps);
-void walk_back(int steps);
+void sweep_write(int NewArray);//pass
+void walk_forward(int steps);//pass - walk is skew because shaft slips
+void walk_back(int steps);//pass - walk is skew because shaft slips
 void turn_right(int angle);
 void turn_right_back(int angle);
 void turn_left(int angle);
 void turn_left_back(int angle);
 
 //to be tested- new functions
-void toe_stand();
-void heal_stand();
-void initialpos();
-void left_foot_tap();
-void right_foot_tap();
-void stand_leg_left();
-void stand_leg_right();
-void right_foot_wave();
-void left_foot_wave();
-void moonwalk_left();
-void moonwalk_right();
-void half_fwd_hiproll();
-void half_bck_hiproll();
-void full_hiproll();
-void left_hiproll();
-void right_hiproll();
+void toe_stand(); //pass
+void heal_stand(); //pass
+void initialpos(); //pass
+void left_foot_tap();//pass
+void right_foot_tap();//pass
+void stand_leg_left();//pass
+void stand_leg_right();//pass
+void right_foot_wave();//pass
+void left_foot_wave(); //pass
+void moonwalk_left(); //fail- falls over
+void moonwalk_right();//fail- falls over
+void half_fwd_hiproll();//pass
+void half_bck_hiproll();//pass
+void full_hiproll();//pass
+void left_hiproll();//pass
+void right_hiproll();//pass
 //this is the setup for the code
 void setup() {
   
   Serial.begin(9600); 
   
   myservo_0.attach(9);  // attaches the servo on pin 9 to the left leg
-  myservo_1.attach(10); //attacges the servo on pin 10 to the right leg  
-  myservo_2.attach(11);  // attaches the servo on pin 11 to the left hip
-  myservo_3.attach(12); //attacges the servo on pin 10 to the right hip 
+  myservo_1.attach(5); //attacges the servo on pin 10 to the right leg  
+  myservo_2.attach(10);  // attaches the servo on pin 11 to the left hip
+  myservo_3.attach(6); //attacges the servo on pin 10 to the right hip 
 
   myservo_0.write(initial[0]);
   myservo_1.write(initial[1]);
   myservo_2.write(initial[2]);
   myservo_3.write(initial[3]); 
 
-  delay(5000);
+  delay(10000);
   Serial.println("This is the start of the program");  
 }
 //========================================================
 //this is the main code
 void loop() {
-  
+  /*
   int steps = 3;
-  increment = 3;
+  increment = 3;  
+  angle = 50;*/
   
-//walk_forward(steps);  
-//walk_back(steps);
-  angle = 50;
+  increment = 3;
+  int steps = 3;
+  //left_hiproll();
+  //right_hiproll();
+  walk_forward(steps);
+  /*
+  left_foot_tap();
+  right_foot_tap();
+  */
+  /*
+  initialpos();
+  toe_stand();
+  heal_stand();
+  stand_leg_left();
+  stand_leg_right();
+  right_foot_wave();
+  left_foot_wave();
+  */
+  //half_fwd_hiproll();
+  //half_bck_hiproll();
+  //full_hiproll();
+  delay(1000);
+ /* NewArray[0] = 90; //left ankle
+  NewArray[1] = -1; //right ankle
+  NewArray[2] = -1; //left hip
+  NewArray[3] = -1; //right hip
+  Serial.println("enter the position");
+  sweep_write(NewArray);
+  */
+  //walk_forward(steps);  
+  //walk_back(steps);  
   //turn_right(angle);
   // to test still
   //turn_right_back(angle);
-  turn_left(angle);
+  //turn_left(angle);
   //turn_left_back(angle);
 }
 //========================================================
@@ -175,8 +204,8 @@ void initialpos(){
 void toe_stand(){
   //stand on toes 
   Serial.println("standing on the toes");
-  NewArray[0] = 20;
-  NewArray[1] = 160;
+  NewArray[0] = 30;
+  NewArray[1] = 150;
   NewArray[2] = -1;
   NewArray[3] = -1;
   Serial.println("enter the position again");
@@ -363,14 +392,14 @@ void right_hiproll(){
   NewArray[0] = -1;
   NewArray[1] = -1;
   NewArray[2] = -1;
-  NewArray[3] = -110;
+  NewArray[3] = 110;
   //write to the motors
   sweep_write(NewArray);
   }
  
 //walking function========================================
  
-void walk_forward(int steps){
+void walk_back(int steps){
   Serial.println("start the walk...");   
   //this is the variable
   int dir = 1;
@@ -445,7 +474,7 @@ void walk_forward(int steps){
 
 //walk back==============================
   
-void walk_back(int steps){
+void walk_forward(int steps){
   Serial.println("start the walk...");   
   //this is the variable
   int dir = 1;
