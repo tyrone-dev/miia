@@ -46,6 +46,9 @@ void half_bck_hiproll();//pass
 void full_hiproll();//pass
 void left_hiproll();//pass
 void right_hiproll();//pass
+void fidget();
+
+
 //this is the setup for the code
 void setup() {
   
@@ -74,9 +77,11 @@ void loop() {
   
   increment = 3;
   int steps = 3;
+  fidget();
+  
   //left_hiproll();
   //right_hiproll();
-  walk_forward(steps);
+  //walk_forward(steps);
   /*
   left_foot_tap();
   right_foot_tap();
@@ -396,6 +401,78 @@ void right_hiproll(){
   //write to the motors
   sweep_write(NewArray);
   }
+
+void fidget(){
+  
+  increment = 3;
+  delay(10000);
+  //this taps the left foot 5 times
+  for(int k=0;k<=5;k+=1){
+    left_foot_tap();  
+    }
+  //wait in the initial position
+  initialpos();
+  delay(10000);
+  //this taps the left and right foot 5 times
+  for(int k=0;k<=5;k+=1){
+    left_foot_tap();
+    right_foot_tap();  
+    }
+  //wait in the initial positon
+  initialpos();
+  delay(7000);
+  for(int k=0;k<=4;k+=1){
+     left_hiproll();
+    }
+ //wait in the initial positon
+  initialpos();
+  delay(5000);
+  stand_leg_left();
+  delay(500);
+  stand_leg_right();
+  delay(500);
+  for(int k=0;k<=3;k+=1){
+    full_hiproll();
+    }
+  initialpos();
+  delay(15000);
+  for(int k=0;k<=2;k+=1){
+     right_foot_wave();
+     left_foot_wave();
+    }
+ initialpos();
+ delay(8000);
+ for(int k=0;k<=2;k+=1){
+    toe_stand();
+    heal_stand();
+    }
+    
+ initialpos();
+ delay(5000);
+  
+  
+  /*
+void toe_stand(); //pass
+void heal_stand(); //pass
+void initialpos(); //pass
+void left_foot_tap();//pass
+void right_foot_tap();//pass
+void stand_leg_left();//pass
+void stand_leg_right();//pass
+void right_foot_wave();//pass
+void left_foot_wave(); //pass
+void moonwalk_left(); //fail- falls over
+void moonwalk_right();//fail- falls over
+void half_fwd_hiproll();//pass
+void half_bck_hiproll();//pass
+void full_hiproll();//pass
+void left_hiproll();//pass
+void right_hiproll();//pass
+*/
+  
+  
+  }
+
  
 //walking function========================================
  
