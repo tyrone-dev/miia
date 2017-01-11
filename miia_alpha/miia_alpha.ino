@@ -12,6 +12,7 @@ int Init = 0;
 int left_leg,right_leg,left_hip,right_hip;
 int increment = 1;
 int angle;
+long randomNumber;
 
 //array variables
 int initial[4] = {90,90,90,90};
@@ -47,7 +48,7 @@ void full_hiproll();//pass
 void left_hiproll();//pass
 void right_hiproll();//pass
 void fidget();
-
+void randomFidget();
 
 //this is the setup for the code
 void setup() {
@@ -63,7 +64,8 @@ void setup() {
   myservo_1.write(initial[1]);
   myservo_2.write(initial[2]);
   myservo_3.write(initial[3]); 
-
+  //random seed function to make the function start at different places
+  randomSeed(analogRead(0));
   delay(10000);
   Serial.println("This is the start of the program");  
 }
@@ -77,8 +79,8 @@ void loop() {
   
   increment = 3;
   int steps = 3;
-  fidget();
-  
+  //fidget();
+  randomFidget();
   //left_hiproll();
   //right_hiproll();
   //walk_forward(steps);
@@ -98,7 +100,7 @@ void loop() {
   //half_fwd_hiproll();
   //half_bck_hiproll();
   //full_hiproll();
-  delay(1000);
+  //delay(1000);
  /* NewArray[0] = 90; //left ankle
   NewArray[1] = -1; //right ankle
   NewArray[2] = -1; //left hip
@@ -401,7 +403,107 @@ void right_hiproll(){
   //write to the motors
   sweep_write(NewArray);
   }
+//randomfidget===========================
+void randomFidget(){
 
+  increment = 3;
+  initialpos();
+  
+  randomNumber = random(1,20);
+  delay(randomNumber*1000);
+  
+  randomNumber = random(1,14);
+  switch(randomNumber){
+
+    case 1:{
+    //this taps the left foot 5 times
+      for(int k=0;k<=5;k+=1){
+        left_foot_tap();  
+        }
+      break;
+    }
+     case 2:{
+      //this taps the left and right foot 5 times
+      for(int k=0;k<=5;k+=1){
+        left_foot_tap();
+        right_foot_tap();
+        delay(50);  
+        }
+      break;     
+    }
+     case 3:{
+      for(int k=0;k<=4;k+=1){
+       left_hiproll();
+      }
+      break;
+    }
+     case 4:{
+      stand_leg_left();
+      delay(2000);
+      break;
+    }
+     case 5:{
+      stand_leg_right();
+      delay(500);
+      break;
+    }
+     case 6:{
+       for(int k=0;k<=3;k+=1){
+        full_hiproll();
+       }
+       break;
+    }
+     case 7:{
+       for(int k=0;k<=2;k+=1){
+         right_foot_wave();
+         left_foot_wave();
+         delay(50);
+       }
+      break;
+    }
+     case 8:{
+      right_foot_wave();
+      break;
+    
+    }
+     case 9:{
+       left_foot_wave();
+       break;
+    }
+     case 10:{
+      for(int k=0;k<=2;k+=1){
+        toe_stand();
+        heal_stand();
+      }
+      break;
+    }
+     case 11:{
+      toe_stand();
+      break;
+    }
+     case 12:{
+      heal_stand();
+      break;
+    } 
+      case 13:{
+      for(int k=0;k<=5;k+=1){
+      right_foot_tap();  
+      }
+      break;        
+    }
+    case 14:{
+      for(int k=0;k<=4;k+=1){
+       right_hiproll();
+      }
+      break;
+    }         
+  }
+  randomNumber = random(1,14);
+  delay(randomNumber*1000);
+  
+}
+
+//fidget function=========================
 void fidget(){
   
   increment = 3;
@@ -416,7 +518,8 @@ void fidget(){
   //this taps the left and right foot 5 times
   for(int k=0;k<=5;k+=1){
     left_foot_tap();
-    right_foot_tap();  
+    right_foot_tap();
+    delay(50);  
     }
   //wait in the initial positon
   initialpos();
@@ -439,6 +542,7 @@ void fidget(){
   for(int k=0;k<=2;k+=1){
      right_foot_wave();
      left_foot_wave();
+     delay(50);
     }
  initialpos();
  delay(8000);
@@ -449,28 +553,7 @@ void fidget(){
     
  initialpos();
  delay(5000);
-  
-  
-  /*
-void toe_stand(); //pass
-void heal_stand(); //pass
-void initialpos(); //pass
-void left_foot_tap();//pass
-void right_foot_tap();//pass
-void stand_leg_left();//pass
-void stand_leg_right();//pass
-void right_foot_wave();//pass
-void left_foot_wave(); //pass
-void moonwalk_left(); //fail- falls over
-void moonwalk_right();//fail- falls over
-void half_fwd_hiproll();//pass
-void half_bck_hiproll();//pass
-void full_hiproll();//pass
-void left_hiproll();//pass
-void right_hiproll();//pass
-*/
-  
-  
+ 
   }
 
  
