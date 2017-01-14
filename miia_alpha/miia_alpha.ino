@@ -12,7 +12,11 @@ int Init = 0;
 int left_leg,right_leg,left_hip,right_hip;
 int increment = 1;
 int angle;
+int steps;
+//this is used for the random number
 long randomNumber;
+//bluetooth variable
+byte byteRead;
 
 //array variables
 int initial[4] = {90,90,90,90};
@@ -49,11 +53,12 @@ void left_hiproll();//pass
 void right_hiproll();//pass
 void fidget();
 void randomFidget();
-
+void bluetoothControl();
 //this is the setup for the code
 void setup() {
   
   Serial.begin(9600); 
+  Serial.println("OK then,lets connect to the bluetooth perhaps....."); 
   
   myservo_0.attach(9);  // attaches the servo on pin 9 to the left leg
   myservo_1.attach(5); //attacges the servo on pin 10 to the right leg  
@@ -72,15 +77,16 @@ void setup() {
 //========================================================
 //this is the main code
 void loop() {
+  
   /*
   int steps = 3;
   increment = 3;  
   angle = 50;*/
-  
-  increment = 3;
-  int steps = 3;
+  bluetoothControl();
+  //increment = 3;
+  //int steps = 3;
   //fidget();
-  randomFidget();
+  //randomFidget();
   //left_hiproll();
   //right_hiproll();
   //walk_forward(steps);
@@ -120,6 +126,78 @@ void loop() {
 //========================================================
 //function declarations 
 //========================================================
+//bluetoothControl
+void bluetoothControl(){  
+  if (Serial.available()){
+    byteRead = Serial.read();
+    Serial.println(" ");
+    Serial.println("I have read the byte, and that byte is: ");
+    Serial.println(byteRead);
+
+    //switch(byteRead)
+    if (byteRead == 'a'){
+      //this will be the walk forward
+      steps = 3;
+      increment = 5;
+      walk_forward(steps);
+      byteRead == 0;
+    }
+    if (byteRead == 'b'){
+      //this will be the walk back
+      steps = 3;
+      increment = 5;
+      walk_back(steps);
+      byteRead == 0;
+    }
+    if (byteRead == 'c'){
+      //this will be the walk left, however we will use left leg
+      stand_leg_left();
+      byteRead == 0;      
+    }
+    if (byteRead == 'd'){
+      //this will be the walk right, however we will use right leg
+      stand_leg_right();
+      byteRead == 0;
+    }
+    if (byteRead == 'e'){
+      //this will be the walk right, however we will use right leg
+      initialpos();
+      byteRead == 0;
+    }
+    if (byteRead == 'f'){
+      //this will be the walk right, however we will use right leg
+      for(int k=0;k<=5;k+=1){
+        right_foot_tap();  
+      }
+      byteRead == 0;
+    }
+    if (byteRead == 'g'){
+      //this will be the walk right, however we will use right leg
+      for(int k=0;k<=5;k+=1){
+        left_foot_tap();  
+      }
+      byteRead == 0;
+    }
+    if (byteRead == 'h'){
+      //this will be the walk right, however we will use right leg
+       for(int k=0;k<=3;k+=1){
+        full_hiproll();
+       }
+      byteRead == 0;
+    }
+    if (byteRead == 'i'){
+      //this will be the walk right, however we will use right leg
+      right_foot_wave();         
+      byteRead == 0;
+    }
+    if (byteRead == 'j'){
+      //this will be the walk right, however we will use right leg
+      left_foot_wave();
+      byteRead == 0;
+    }
+  }    
+}
+
 //Sweep_write
 
 void sweep_write(int NewArray[4]){
