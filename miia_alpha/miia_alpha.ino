@@ -21,7 +21,7 @@ Servo myservo_3; //right hip
 // general variables
 int Init = 0;
 int left_leg,right_leg,left_hip,right_hip;
-int increment = 1;
+int increment = 5;
 int angle;
 int steps;
 
@@ -379,7 +379,7 @@ void stand_leg_left(){
 //stand on right leg=====================
 void stand_leg_right(){
   
-  NewArray[0] = 10;
+  NewArray[0] = 20;
   NewArray[1] = 60;
   NewArray[2] = 90;
   NewArray[3] = 90;
