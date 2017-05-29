@@ -50,7 +50,7 @@ void right_hiproll();
 void setup() {
   
   Serial.begin(9600); 
-  
+  //this may change 
   myservo_0.attach(9);  // attaches the servo on pin 9 to the left leg
   myservo_1.attach(10); //attacges the servo on pin 10 to the right leg  
   myservo_2.attach(11);  // attaches the servo on pin 11 to the left hip
@@ -71,13 +71,23 @@ void loop() {
   int steps = 3;
   increment = 3;
   
-//walk_forward(steps);  
-//walk_back(steps);
-  angle = 50;
-  //turn_right(angle);
-  // to test still
-  //turn_right_back(angle);
-  turn_left(angle);
+  initialpos();
+  //stand_leg_left();
+  //walk_forward(steps);
+  //walk_back(steps);
+  //walk_forward(steps);  
+  //walk_back(steps);
+ // angle = 50;
+
+
+  //set angle for angle to turn, 90 will be too much
+  //use a max of 50 forward and 40 back, although test it on your side
+  //and see if you can get more
+  
+  //turn_left(50);
+  //turn_left_back(40);
+  //turn_right(50);
+  //turn_right_back(40);
   //turn_left_back(angle);
 }
 //========================================================
@@ -519,212 +529,149 @@ void walk_back(int steps){
 }  
 
 void turn_right(int angle){
+  
+  //initial position
+  initialpos();
+  //stand left leg
+  stand_leg_right();
 
-  //initial leg position
-
-  left_leg = 90+30;//angle that otto will tilt to stand, the smaller the better
-  right_leg = 90+ 80;
-
-  NewArray[0] = left_leg;
-  NewArray[1] = right_leg;
+  //lift foot
+  NewArray[0] = 90;
+  NewArray[1] = -1;
   NewArray[2] = -1;
-  NewArray[3] = -1;
-
+  NewArray[3] = -1;  
   //write to the motors
   sweep_write(NewArray);
-
-  //this is the angle that the robot turns
-   
-  NewArray[0] = 90+20; 
-  NewArray[1] = 90+50;
+  
+  //do hip rotation
+  NewArray[0] = -1;
+  NewArray[1] = -1;
   NewArray[2] = 90-angle;
-  NewArray[3] = -1;
+  NewArray[3] = -1;  
   //write to the motors
   sweep_write(NewArray);
 
-  //this makes thing right
-
-  //stage 1
-  NewArray[0] = 90;
+  //put foot down
+  NewArray[0] = -1;
   NewArray[1] = 90;
   NewArray[2] = -1;
-  NewArray[3] = -1;
+  NewArray[3] = -1;  
   //write to the motors
   sweep_write(NewArray);
 
-  //this is the end of the step
-  NewArray[0] = 90;
-  NewArray[1] = 90;
-  NewArray[2] = 90;
-  NewArray[3] = 90;
-  //write to the motors
-  sweep_write(NewArray);   
+  //initial position - known state
+  initialpos();
   }
 
 //==============================================
 //turn right backwards, this is if the robot is walking backwards first
 void turn_right_back(int angle){
 
- //initial leg position
-  left_leg = 90+30;//angle that otto will tilt to stand, the smaller the better
-  right_leg = 90+ 80;
+//initial position
+  initialpos();
+  //stand left leg
+  stand_leg_right();
 
-  NewArray[0] = left_leg;
-  NewArray[1] = right_leg;
+  //lift foot
+  NewArray[0] = 90;
+  NewArray[1] = -1;
   NewArray[2] = -1;
-  NewArray[3] = -1;
-
+  NewArray[3] = -1;  
   //write to the motors
   sweep_write(NewArray);
-
-  //this is the angle that the robot turns
-   
-  NewArray[0] = 90+20; 
-  NewArray[1] = 90+50;
+  
+  //do hip rotation
+  NewArray[0] = -1;
+  NewArray[1] = -1;
   NewArray[2] = 90+angle;
-  NewArray[3] = -1;
+  NewArray[3] = -1;  
   //write to the motors
   sweep_write(NewArray);
 
-  //this makes thing right
-
-  //stage 1
-  NewArray[0] = 90;
+  //put foot down
+  NewArray[0] = -1;
   NewArray[1] = 90;
   NewArray[2] = -1;
-  NewArray[3] = -1;
+  NewArray[3] = -1;  
   //write to the motors
   sweep_write(NewArray);
 
-  //this is the end of the step
-  NewArray[0] = 90;
-  NewArray[1] = 90;
-  NewArray[2] = 90;
-  NewArray[3] = 90;
-  //write to the motors
-  sweep_write(NewArray);     
+  //initial position - known state
+  initialpos();
   }
 
 //=================================================
 //turn_left
 void turn_left(int angle){
+  
+  //initial position
+  initialpos();
+  //stand left leg
+  stand_leg_left();
 
-  //===============================
-  //new image
-
-
-  //===============================
-
-  //initial leg position  
-  left_leg = 90-80;
-  right_leg = 90- 30;//angle that otto will tilt to stand, the smaller the better
-
-  NewArray[0] = left_leg;
-  NewArray[1] = right_leg;
+  //lift foot
+  NewArray[0] = -1;
+  NewArray[1] = 90;
   NewArray[2] = -1;
-  NewArray[3] = -1;
+  NewArray[3] = -1;  
   //write to the motors
   sweep_write(NewArray);
-/*
-  //mske the foot flat
-  NewArray[0] = 60;
+  
+  //do hip rotation
+  NewArray[0] = -1;
   NewArray[1] = -1;
   NewArray[2] = -1;
-  NewArray[3] = -1;
-  //write to the motors
-  sweep_write(NewArray);
-  
-  //this is the angle that the robot turns
-  right_leg = 90;
-  left_hip = 90+angle;
-  
-  NewArray[0] = -1;
-  NewArray[1] = right_leg;
-  NewArray[2] = -1;
-  NewArray[3] = left_hip;
+  NewArray[3] = 90+angle;  
   //write to the motors
   sweep_write(NewArray);
 
-  //this makes thing right
-
-  //stage 1
-  NewArray[0] = -1;
-  NewArray[1] = 90;
-  NewArray[2] = -1;
-  NewArray[3] = -1;
-  //write to the motors
-  sweep_write(NewArray);
-/*
-  //stage 2
-  NewArray[0] = 110;
-  NewArray[1] = 45;
-  NewArray[2] = -1;
-  NewArray[3] = -1;
-  //write to the motors
-  sweep_write(NewArray);
- 
-  //this is the end of the step
+  //put foot down
   NewArray[0] = 90;
-  NewArray[1] = 90;
-  NewArray[2] = 90;
-  NewArray[3] = 90;
+  NewArray[1] = -1;
+  NewArray[2] = -1;
+  NewArray[3] = -1;  
   //write to the motors
-  sweep_write(NewArray);   */ 
+  sweep_write(NewArray);
+
+  //initial position - known state
+  initialpos();
   }
 
 //==========================================
 //turn left back
 void turn_left_back(int angle){
+   //initial position
+  initialpos();
+  //stand left leg
+  stand_leg_left();
 
-  //initial leg position
-
-  left_leg = 90+80;//angle that otto will tilt to stand, the smaller the better
-  right_leg = 90+ 20;
-
-  NewArray[0] = left_leg;
-  NewArray[1] = right_leg;
-  NewArray[2] = -1;
-  NewArray[3] = -1;
-
-  //write to the motors
-  sweep_write(NewArray);
-
-  //this is the angle that the robot turns
-  right_leg = 90+angle;
-  left_hip = 90;
-  
-  NewArray[0] = -1;
-  NewArray[1] = right_leg;
-  NewArray[2] = left_hip;
-  NewArray[3] = -1;
-  //write to the motors
-  sweep_write(NewArray);
-
-  //this makes thing right
-
-  //stage 1
+  //lift foot
   NewArray[0] = -1;
   NewArray[1] = 90;
   NewArray[2] = -1;
-  NewArray[3] = -1;
-  //write to the motors
-  sweep_write(NewArray);
-
-  //stage 2
-  NewArray[0] = 110;
-  NewArray[1] = 45;
-  NewArray[2] = -1;
-  NewArray[3] = -1;
+  NewArray[3] = -1;  
   //write to the motors
   sweep_write(NewArray);
   
-  //this is the end of the step
+  //do hip rotation
+  NewArray[0] = -1;
+  NewArray[1] = -1;
+  NewArray[2] = -1;
+  NewArray[3] = 90-angle;  
+  //write to the motors
+  sweep_write(NewArray);
+
+  //put foot down
   NewArray[0] = 90;
-  NewArray[1] = 90;
-  NewArray[2] = 90;
-  NewArray[3] = 90;
+  NewArray[1] = -1;
+  NewArray[2] = -1;
+  NewArray[3] = -1;  
   //write to the motors
-  sweep_write(NewArray);    
+  sweep_write(NewArray);
+
+  //initial position - known state
+  initialpos();
+   
   }
 
 
