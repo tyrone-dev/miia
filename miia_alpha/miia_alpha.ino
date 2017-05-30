@@ -13,6 +13,14 @@ Servo myservo_3; //right hip
 #define LEFT_HIP A2
 #define RIGHT_HIP A3
 
+// if using a normal led
+#define LED_PIN 3
+
+// change pins according to how the RGB LED is connected
+#define RED_PIN A4
+#define GREEN_PIN A5
+#define BLUE_PIN A6
+
 // change to true/false to enable use of bluetooth module
 #define BLUETOOTH_COMMS true
 
@@ -65,6 +73,15 @@ void fidget();
 void randomFidget();
 void bluetoothControl();
 
+// led control
+void ledControl(bool state);
+void ledHeartBeat(int timeOn, int timeOff, int duration);
+void heartBeat();
+void setColor(int red, int green, int blue);
+void ledRed(void );
+void ledGreen(void );
+void ledBlue(void );
+
 //this is the setup for the code
 void setup() {
 
@@ -112,44 +129,6 @@ void loop() {
   {
     randomFidget();
   }
-  
-  
-  //int steps = 3;
-  //increment = 3;  
-  //angle = 50;
-  //bluetoothControl();
-  //increment = 3;
-  //int steps = 3;
-  //fidget();
-  //randomFidget();
-  //left_hiproll();
-  //right_hiproll();
-  //walk_forward(steps);
-  //left_foot_tap();
-  //right_foot_tap();
-  //initialpos();
-  //toe_stand();
-  //heal_stand();
-  //stand_leg_left();
-  //stand_leg_right();
-  //right_foot_wave();
-  //left_foot_wave();
-  //half_fwd_hiproll();
-  //half_bck_hiproll();
-  //full_hiproll();
-  //delay(1000);
-  //NewArray[0] = 90; //left ankle
-  //NewArray[1] = -1; //right ankle
-  //NewArray[2] = -1; //left hip
-  //NewArray[3] = -1; //right hip
-  //sweep_write(NewArray);
-  //walk_forward(steps);  
-  //walk_back(steps);  
-  //turn_right(angle);
-  // to test still
-  //turn_right_back(angle);
-  //turn_left(angle);
-  //turn_left_back(angle);
 }
 
 //========================================================
@@ -227,7 +206,118 @@ void bluetoothControl()
       left_foot_wave();
       byteRead == 0;
     }
+
+    if (byteRead == 'k'){
+      // led on static
+      ledControl(HIGH);      
+    }
+    if (byteRead == 'l'){
+      // led off static
+      ledControl(LOW);
+    }
+    if (byteRead == 'm'){
+      heartBeat();
+    }
   }    
+}
+
+// ledControl
+void ledControl(bool state)
+{
+  digitalWrite(LED_PIN, state);  
+}
+
+/* ledHeartBeat
+void ledHeartBeat(int timeOn, int timeOff, int duration)
+{
+
+  int numLoops = duration / (timeOn+timeOff);
+  int count;
+  for (count = 0; count < numLoops; count++)
+  {
+  // led on
+  digitalWrite(LED_PIN, HIGH);
+  delay(timeOn);
+
+  // led off
+  digitalWrite(LED_PIN, LOW);
+  delay(timeOff);
+  
+  }
+}*/
+
+// actual heartbeat
+void heartBeat()
+{
+    // loop this
+    for (int i = 0; i <5; i++)
+    { 
+    ledHeartBeat(200, 150, 700);
+    ledHeartBeat(0, 750, 750);
+    }
+    
+    // loop this
+    for (int i = 0; i < 5; i++)
+    {
+    ledHeartBeat(200, 150, 700);
+    ledHeartBeat(0,500,500);
+    }
+    // loop this
+    for (int i = 0; i < 5; i++)
+    {
+    ledHeartBeat(200, 100, 600);
+    }
+    
+    // static on i.e. flat line . . . 
+    ledHeartBeat(1000, 250, 1250);
+    ledHeartBeat(200, 150, 700);
+    ledControl(HIGH);
+}
+
+// ledHeartBeat
+void ledHeartBeat(int timeOn, int timeOff, int duration)
+{
+
+  int numLoops = duration / (timeOn+timeOff);
+  int count;
+  for (count = 0; count < numLoops; count++)
+  {
+  // led on (choose colour here) -- default is green
+  ledGreen();
+  delay(timeOn);
+
+  // led off
+  ledOff();
+  delay(timeOff);
+  
+  }
+}
+
+void setColor(int red, int green, int blue)
+{
+  analogWrite(RED_PIN, red);
+  analogWrite(GREEN_PIN, green);
+  analogWrite(BLUE_PIN, blue);  
+}
+
+void ledRed(void){
+  setColor(255, 0, 0);
+}
+
+void ledGreen(void){
+  setColor(0, 255, 0);
+}
+
+void ledBlue(void){
+  setColor(0, 0, 255);
+}
+
+void ledWhite(void){
+  setColor(255, 255, 255);
+}
+
+void ledOff(void){
+  setColor(0,0,0);
 }
 
 //Sweep_write
@@ -378,8 +468,20 @@ void stand_leg_left(){
 
 //stand on right leg=====================
 void stand_leg_right(){
+
+  // this used to fail because the sweep_write() fxn always does the left foot first which upsets the structural balance
+  // a quick fix is included below, consisting of two sweep_writes()
+  // a better fix: rework sweep_write() to include order of servo writes
   
-  NewArray[0] = 20;
+  NewArray[0] = 90;
+  NewArray[1] = 60;
+  NewArray[2] = 90;
+  NewArray[3] = 90;
+
+  //write to the motors
+  sweep_write(NewArray);
+
+  NewArray[0] = 10;
   NewArray[1] = 60;
   NewArray[2] = 90;
   NewArray[3] = 90;
@@ -819,209 +921,146 @@ void walk_forward(int steps){
 
 void turn_right(int angle){
 
-  //initial leg position
+  //initial position
+  initialpos();
+  //stand left leg
+  stand_leg_right();
 
-  left_leg = 90+30;//angle that otto will tilt to stand, the smaller the better
-  right_leg = 90+ 80;
-
-  NewArray[0] = left_leg;
-  NewArray[1] = right_leg;
+  //lift foot
+  NewArray[0] = 90;
+  NewArray[1] = -1;
   NewArray[2] = -1;
-  NewArray[3] = -1;
-
+  NewArray[3] = -1;  
   //write to the motors
   sweep_write(NewArray);
-
-  //this is the angle that the robot turns
-   
-  NewArray[0] = 90+20; 
-  NewArray[1] = 90+50;
+  
+  //do hip rotation
+  NewArray[0] = -1;
+  NewArray[1] = -1;
   NewArray[2] = 90-angle;
-  NewArray[3] = -1;
+  NewArray[3] = -1;  
   //write to the motors
   sweep_write(NewArray);
 
-  //this makes thing right
-
-  //stage 1
-  NewArray[0] = 90;
+  //put foot down
+  NewArray[0] = -1;
   NewArray[1] = 90;
   NewArray[2] = -1;
-  NewArray[3] = -1;
+  NewArray[3] = -1;  
   //write to the motors
   sweep_write(NewArray);
 
-  //this is the end of the step
-  NewArray[0] = 90;
-  NewArray[1] = 90;
-  NewArray[2] = 90;
-  NewArray[3] = 90;
-  //write to the motors
-  sweep_write(NewArray);   
+  //initial position - known state
+  initialpos();
   }
 
 //==============================================
 //turn right backwards, this is if the robot is walking backwards first
 void turn_right_back(int angle){
 
- //initial leg position
-  left_leg = 90+30;//angle that otto will tilt to stand, the smaller the better
-  right_leg = 90+ 80;
+ //initial position
+  initialpos();
+  //stand left leg
+  stand_leg_right();
 
-  NewArray[0] = left_leg;
-  NewArray[1] = right_leg;
+  //lift foot
+  NewArray[0] = 90;
+  NewArray[1] = -1;
   NewArray[2] = -1;
-  NewArray[3] = -1;
-
+  NewArray[3] = -1;  
   //write to the motors
   sweep_write(NewArray);
-
-  //this is the angle that the robot turns
-   
-  NewArray[0] = 90+20; 
-  NewArray[1] = 90+50;
+  
+  //do hip rotation
+  NewArray[0] = -1;
+  NewArray[1] = -1;
   NewArray[2] = 90+angle;
-  NewArray[3] = -1;
+  NewArray[3] = -1;  
   //write to the motors
   sweep_write(NewArray);
 
-  //this makes thing right
-
-  //stage 1
-  NewArray[0] = 90;
+  //put foot down
+  NewArray[0] = -1;
   NewArray[1] = 90;
   NewArray[2] = -1;
-  NewArray[3] = -1;
+  NewArray[3] = -1;  
   //write to the motors
   sweep_write(NewArray);
 
-  //this is the end of the step
-  NewArray[0] = 90;
-  NewArray[1] = 90;
-  NewArray[2] = 90;
-  NewArray[3] = 90;
-  //write to the motors
-  sweep_write(NewArray);     
+  //initial position - known state
+  initialpos();     
   }
 
 //=================================================
 //turn_left
 void turn_left(int angle){
 
-  //===============================
-  //new image
+  //initial position
+  initialpos();
+  //stand left leg
+  stand_leg_left();
 
-
-  //===============================
-
-  //initial leg position  
-  left_leg = 90-80;
-  right_leg = 90- 30;//angle that otto will tilt to stand, the smaller the better
-
-  NewArray[0] = left_leg;
-  NewArray[1] = right_leg;
+  //lift foot
+  NewArray[0] = -1;
+  NewArray[1] = 90;
   NewArray[2] = -1;
-  NewArray[3] = -1;
+  NewArray[3] = -1;  
   //write to the motors
   sweep_write(NewArray);
-/*
-  //mske the foot flat
-  NewArray[0] = 60;
+  
+  //do hip rotation
+  NewArray[0] = -1;
   NewArray[1] = -1;
   NewArray[2] = -1;
-  NewArray[3] = -1;
-  //write to the motors
-  sweep_write(NewArray);
-  
-  //this is the angle that the robot turns
-  right_leg = 90;
-  left_hip = 90+angle;
-  
-  NewArray[0] = -1;
-  NewArray[1] = right_leg;
-  NewArray[2] = -1;
-  NewArray[3] = left_hip;
+  NewArray[3] = 90+angle;  
   //write to the motors
   sweep_write(NewArray);
 
-  //this makes thing right
-
-  //stage 1
-  NewArray[0] = -1;
-  NewArray[1] = 90;
-  NewArray[2] = -1;
-  NewArray[3] = -1;
-  //write to the motors
-  sweep_write(NewArray);
-/*
-  //stage 2
-  NewArray[0] = 110;
-  NewArray[1] = 45;
-  NewArray[2] = -1;
-  NewArray[3] = -1;
-  //write to the motors
-  sweep_write(NewArray);
- 
-  //this is the end of the step
+  //put foot down
   NewArray[0] = 90;
-  NewArray[1] = 90;
-  NewArray[2] = 90;
-  NewArray[3] = 90;
+  NewArray[1] = -1;
+  NewArray[2] = -1;
+  NewArray[3] = -1;  
   //write to the motors
-  sweep_write(NewArray);   */ 
+  sweep_write(NewArray);
+
+  //initial position - known state
+  initialpos(); 
   }
 
 //==========================================
 //turn left back
 void turn_left_back(int angle){
 
-  //initial leg position
+  //initial position
+  initialpos();
+  //stand left leg
+  stand_leg_left();
 
-  left_leg = 90+80;//angle that otto will tilt to stand, the smaller the better
-  right_leg = 90+ 20;
-
-  NewArray[0] = left_leg;
-  NewArray[1] = right_leg;
-  NewArray[2] = -1;
-  NewArray[3] = -1;
-
-  //write to the motors
-  sweep_write(NewArray);
-
-  //this is the angle that the robot turns
-  right_leg = 90+angle;
-  left_hip = 90;
-  
-  NewArray[0] = -1;
-  NewArray[1] = right_leg;
-  NewArray[2] = left_hip;
-  NewArray[3] = -1;
-  //write to the motors
-  sweep_write(NewArray);
-
-  //this makes thing right
-
-  //stage 1
+  //lift foot
   NewArray[0] = -1;
   NewArray[1] = 90;
   NewArray[2] = -1;
-  NewArray[3] = -1;
-  //write to the motors
-  sweep_write(NewArray);
-
-  //stage 2
-  NewArray[0] = 110;
-  NewArray[1] = 45;
-  NewArray[2] = -1;
-  NewArray[3] = -1;
+  NewArray[3] = -1;  
   //write to the motors
   sweep_write(NewArray);
   
-  //this is the end of the step
+  //do hip rotation
+  NewArray[0] = -1;
+  NewArray[1] = -1;
+  NewArray[2] = -1;
+  NewArray[3] = 90-angle;  
+  //write to the motors
+  sweep_write(NewArray);
+
+  //put foot down
   NewArray[0] = 90;
-  NewArray[1] = 90;
-  NewArray[2] = 90;
-  NewArray[3] = 90;
+  NewArray[1] = -1;
+  NewArray[2] = -1;
+  NewArray[3] = -1;  
   //write to the motors
-  sweep_write(NewArray);    
+  sweep_write(NewArray);
+
+  //initial position - known state
+  initialpos();    
   }
