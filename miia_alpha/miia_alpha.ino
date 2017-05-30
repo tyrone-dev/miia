@@ -218,6 +218,19 @@ void bluetoothControl()
     if (byteRead == 'm'){
       heartBeat();
     }
+    if (byteRead == 'n'){
+      turn_right(40);
+    }
+    if (byteRead == 'o'){
+      turn_right_back(40);
+
+    }
+    if (byteRead == 'p'){
+      turn_left(40);
+    }
+    if (byteRead == 'q'){
+      turn_left_back(40);
+    }
   }    
 }
 
@@ -937,8 +950,8 @@ void turn_right(int angle){
   //do hip rotation
   NewArray[0] = -1;
   NewArray[1] = -1;
-  NewArray[2] = 90-angle;
-  NewArray[3] = -1;  
+  NewArray[2] = -1;
+  NewArray[3] = 90-angle;  
   //write to the motors
   sweep_write(NewArray);
 
@@ -974,8 +987,8 @@ void turn_right_back(int angle){
   //do hip rotation
   NewArray[0] = -1;
   NewArray[1] = -1;
-  NewArray[2] = 90+angle;
-  NewArray[3] = -1;  
+  NewArray[2] = -1;
+  NewArray[3] = 90+angle;;  
   //write to the motors
   sweep_write(NewArray);
 
@@ -1011,8 +1024,8 @@ void turn_left(int angle){
   //do hip rotation
   NewArray[0] = -1;
   NewArray[1] = -1;
-  NewArray[2] = -1;
-  NewArray[3] = 90+angle;  
+  NewArray[2] = 90+angle;
+  NewArray[3] = -1;  
   //write to the motors
   sweep_write(NewArray);
 
@@ -1048,8 +1061,8 @@ void turn_left_back(int angle){
   //do hip rotation
   NewArray[0] = -1;
   NewArray[1] = -1;
-  NewArray[2] = -1;
-  NewArray[3] = 90-angle;  
+  NewArray[2] = 90-angle;
+  NewArray[3] = -1;  
   //write to the motors
   sweep_write(NewArray);
 
