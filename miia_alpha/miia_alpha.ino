@@ -1,99 +1,325 @@
 #include <Servo.h>
 
-Servo myservo_0; // left ankle
-Servo myservo_1; //right ankle
+Servo myservo_0; // left foot
+Servo myservo_1; //right foot
 Servo myservo_2; //left hip
 Servo myservo_3; //right hip
 
-//Global variables 
+// constant definitions
+
+// change pins according to which servos are connected where
+#define LEFT_FOOT A0
+#define RIGHT_FOOT A1
+#define LEFT_HIP A2
+#define RIGHT_HIP A3
+
+// if using a normal led
+#define LED_PIN 3
+
+// change pins according to how the RGB LED is connected
+#define RED_PIN A4
+#define GREEN_PIN A5
+#define BLUE_PIN A6
+
+// change to true/false to enable use of bluetooth module
+#define BLUETOOTH_COMMS true
+
+// Global variables 
 //==================================
-//variables
+// general variables
 int Init = 0;
 int left_leg,right_leg,left_hip,right_hip;
-int increment = 1;
+int increment = 5;
 int angle;
+int steps;
+
+//this is used for the random number
+long randomNumber;
+
+//bluetooth comms variables
+byte byteRead;
 
 //array variables
 int initial[4] = {90,90,90,90};
 int Range[4] = {0,0,0,0};
 int NewArray[4] = {0,0,0,0};
 
-
-//function declarations
+// function declarations
 //==================================
-void sweep_write(int NewArray);
-void walk_forward(int steps);
-void walk_back(int steps);
+void sweep_write(int NewArray);//pass
+void walk_forward(int steps);//pass - walk is skew because shaft slips
+void walk_back(int steps);//pass - walk is skew because shaft slips
 void turn_right(int angle);
 void turn_right_back(int angle);
 void turn_left(int angle);
 void turn_left_back(int angle);
+void toe_stand(); //pass
+void heal_stand(); //pass
+void initialpos(); //pass
+void left_foot_tap();//pass
+void right_foot_tap();//pass
+void stand_leg_left();//pass
+void stand_leg_right();//pass
+void right_foot_wave();//pass
+void left_foot_wave(); //pass
+void moonwalk_left(); //fail- falls over
+void moonwalk_right();//fail- falls over
+void half_fwd_hiproll();//pass
+void half_bck_hiproll();//pass
+void full_hiproll();//pass
+void left_hiproll();//pass
+void right_hiproll();//pass
+void fidget();
+void randomFidget();
+void bluetoothControl();
 
-//to be tested- new functions
-void toe_stand();
-void heal_stand();
-void initialpos();
-void left_foot_tap();
-void right_foot_tap();
-void stand_leg_left();
-void stand_leg_right();
-void right_foot_wave();
-void left_foot_wave();
-void moonwalk_left();
-void moonwalk_right();
-void half_fwd_hiproll();
-void half_bck_hiproll();
-void full_hiproll();
-void left_hiproll();
-void right_hiproll();
+// led control
+void ledControl(bool state);
+void ledHeartBeat(int timeOn, int timeOff, int duration);
+void heartBeat();
+void setColor(int red, int green, int blue);
+void ledRed(void );
+void ledGreen(void );
+void ledBlue(void );
+
 //this is the setup for the code
 void setup() {
-  
-  Serial.begin(9600); 
-  //this may change 
-  myservo_0.attach(9);  // attaches the servo on pin 9 to the left leg
-  myservo_1.attach(10); //attacges the servo on pin 10 to the right leg  
-  myservo_2.attach(11);  // attaches the servo on pin 11 to the left hip
-  myservo_3.attach(12); //attacges the servo on pin 10 to the right hip 
 
+  // enable serial comms
+  Serial.begin(9600); 
+
+  //configure pin modes
+  pinMode(LEFT_FOOT, OUTPUT);
+  pinMode(RIGHT_FOOT, OUTPUT);
+  pinMode(LEFT_HIP, OUTPUT);
+  pinMode(RIGHT_FOOT, OUTPUT);
+  
+  // configure servos
+  myservo_0.attach(LEFT_FOOT);  // attaches the servo on pin 9 to the left leg
+  myservo_1.attach(RIGHT_FOOT); //attacges the servo on pin 10 to the right leg  
+  myservo_2.attach(LEFT_HIP);  // attaches the servo on pin 11 to the left hip
+  myservo_3.attach(RIGHT_HIP); //attacges the servo on pin 10 to the right hip 
+
+  // initialize servo positions
   myservo_0.write(initial[0]);
   myservo_1.write(initial[1]);
   myservo_2.write(initial[2]);
   myservo_3.write(initial[3]); 
+  
+  //random seed function to make the function start at different places
+  randomSeed(analogRead(0));
 
-  delay(5000);
-  Serial.println("This is the start of the program");  
+  if (not BLUETOOTH_COMMS)
+  {
+    // delay before controllable - add a bluetooth? flag above, if using bluetooth comms don't need this, else, do so MiiA doesn't walk immediately
+    delay(10000);
+    Serial.println("Waited 10 Seconds!");
+  }
+  Serial.println("Okay go");  
 }
 //========================================================
 //this is the main code
 void loop() {
-  
-  int steps = 3;
-  increment = 3;
-  
-  initialpos();
-  //stand_leg_left();
-  //walk_forward(steps);
-  //walk_back(steps);
-  //walk_forward(steps);  
-  //walk_back(steps);
- // angle = 50;
 
-
-  //set angle for angle to turn, 90 will be too much
-  //use a max of 50 forward and 40 back, although test it on your side
-  //and see if you can get more
-  
-  //turn_left(50);
-  //turn_left_back(40);
-  //turn_right(50);
-  //turn_right_back(40);
-  //turn_left_back(angle);
+  if (BLUETOOTH_COMMS)
+  {
+    bluetoothControl();
+  }
+  else
+  {
+    randomFidget();
+  }
 }
+
 //========================================================
+// function definitions 
 //========================================================
-//function declarations 
-//========================================================
+
+//bluetoothControl
+void bluetoothControl()
+{  
+  if (Serial.available())
+  {
+    byteRead = Serial.read();
+    Serial.print("Data received: ");   
+    Serial.print(byteRead);
+    Serial.print("\n");
+
+    //switch(byteRead)
+    if (byteRead == 'a'){
+      //this will be the walk forward
+      steps = 3;
+      increment = 5;
+      walk_forward(steps);
+      byteRead == 0;
+    }
+    if (byteRead == 'b'){
+      //this will be the walk back
+      steps = 3;
+      increment = 5;
+      walk_back(steps);
+      byteRead == 0;
+    }
+    if (byteRead == 'c'){
+      //this will be the walk left, however we will use left leg
+      stand_leg_left();
+      byteRead == 0;      
+    }
+    if (byteRead == 'd'){
+      //this will be the walk right, however we will use right leg
+      stand_leg_right();
+      byteRead == 0;
+    }
+    if (byteRead == 'e'){
+      //this will be the walk right, however we will use right leg
+      initialpos();
+      byteRead == 0;
+    }
+    if (byteRead == 'f'){
+      //this will be the walk right, however we will use right leg
+      for(int k=0;k<=5;k+=1){
+        right_foot_tap();  
+      }
+      byteRead == 0;
+    }
+    if (byteRead == 'g'){
+      //this will be the walk right, however we will use right leg
+      for(int k=0;k<=5;k+=1){
+        left_foot_tap();  
+      }
+      byteRead == 0;
+    }
+    if (byteRead == 'h'){
+      //this will be the walk right, however we will use right leg
+       for(int k=0;k<=3;k+=1){
+        full_hiproll();
+       }
+      byteRead == 0;
+    }
+    if (byteRead == 'i'){
+      //this will be the walk right, however we will use right leg
+      right_foot_wave();         
+      byteRead == 0;
+    }
+    if (byteRead == 'j'){
+      //this will be the walk right, however we will use right leg
+      left_foot_wave();
+      byteRead == 0;
+    }
+
+    if (byteRead == 'k'){
+      // led on static
+      ledControl(HIGH);      
+    }
+    if (byteRead == 'l'){
+      // led off static
+      ledControl(LOW);
+    }
+    if (byteRead == 'm'){
+      heartBeat();
+    }
+  }    
+}
+
+// ledControl
+void ledControl(bool state)
+{
+  digitalWrite(LED_PIN, state);  
+}
+
+/* ledHeartBeat
+void ledHeartBeat(int timeOn, int timeOff, int duration)
+{
+
+  int numLoops = duration / (timeOn+timeOff);
+  int count;
+  for (count = 0; count < numLoops; count++)
+  {
+  // led on
+  digitalWrite(LED_PIN, HIGH);
+  delay(timeOn);
+
+  // led off
+  digitalWrite(LED_PIN, LOW);
+  delay(timeOff);
+  
+  }
+}*/
+
+// actual heartbeat
+void heartBeat()
+{
+    // loop this
+    for (int i = 0; i <5; i++)
+    { 
+    ledHeartBeat(200, 150, 700);
+    ledHeartBeat(0, 750, 750);
+    }
+    
+    // loop this
+    for (int i = 0; i < 5; i++)
+    {
+    ledHeartBeat(200, 150, 700);
+    ledHeartBeat(0,500,500);
+    }
+    // loop this
+    for (int i = 0; i < 5; i++)
+    {
+    ledHeartBeat(200, 100, 600);
+    }
+    
+    // static on i.e. flat line . . . 
+    ledHeartBeat(1000, 250, 1250);
+    ledHeartBeat(200, 150, 700);
+    ledControl(HIGH);
+}
+
+// ledHeartBeat
+void ledHeartBeat(int timeOn, int timeOff, int duration)
+{
+
+  int numLoops = duration / (timeOn+timeOff);
+  int count;
+  for (count = 0; count < numLoops; count++)
+  {
+  // led on (choose colour here) -- default is green
+  ledGreen();
+  delay(timeOn);
+
+  // led off
+  ledOff();
+  delay(timeOff);
+  
+  }
+}
+
+void setColor(int red, int green, int blue)
+{
+  analogWrite(RED_PIN, red);
+  analogWrite(GREEN_PIN, green);
+  analogWrite(BLUE_PIN, blue);  
+}
+
+void ledRed(void){
+  setColor(255, 0, 0);
+}
+
+void ledGreen(void){
+  setColor(0, 255, 0);
+}
+
+void ledBlue(void){
+  setColor(0, 0, 255);
+}
+
+void ledWhite(void){
+  setColor(255, 255, 255);
+}
+
+void ledOff(void){
+  setColor(0,0,0);
+}
+
 //Sweep_write
 
 void sweep_write(int NewArray[4]){
@@ -185,8 +411,8 @@ void initialpos(){
 void toe_stand(){
   //stand on toes 
   Serial.println("standing on the toes");
-  NewArray[0] = 20;
-  NewArray[1] = 160;
+  NewArray[0] = 30;
+  NewArray[1] = 150;
   NewArray[2] = -1;
   NewArray[3] = -1;
   Serial.println("enter the position again");
@@ -242,7 +468,19 @@ void stand_leg_left(){
 
 //stand on right leg=====================
 void stand_leg_right(){
+
+  // this used to fail because the sweep_write() fxn always does the left foot first which upsets the structural balance
+  // a quick fix is included below, consisting of two sweep_writes()
+  // a better fix: rework sweep_write() to include order of servo writes
   
+  NewArray[0] = 90;
+  NewArray[1] = 60;
+  NewArray[2] = 90;
+  NewArray[3] = 90;
+
+  //write to the motors
+  sweep_write(NewArray);
+
   NewArray[0] = 10;
   NewArray[1] = 60;
   NewArray[2] = 90;
@@ -373,14 +611,167 @@ void right_hiproll(){
   NewArray[0] = -1;
   NewArray[1] = -1;
   NewArray[2] = -1;
-  NewArray[3] = -110;
+  NewArray[3] = 110;
   //write to the motors
   sweep_write(NewArray);
   }
+//randomfidget===========================
+void randomFidget(){
+
+  increment = 3;
+  initialpos();
+  
+  randomNumber = random(1,20);
+  delay(randomNumber*1000);
+  
+  randomNumber = random(1,14);
+  switch(randomNumber){
+
+    case 1:{
+    //this taps the left foot 5 times
+      for(int k=0;k<=5;k+=1){
+        left_foot_tap();  
+        }
+      break;
+    }
+     case 2:{
+      //this taps the left and right foot 5 times
+      for(int k=0;k<=5;k+=1){
+        left_foot_tap();
+        right_foot_tap();
+        delay(50);  
+        }
+      break;     
+    }
+     case 3:{
+      for(int k=0;k<=4;k+=1){
+       left_hiproll();
+      }
+      break;
+    }
+     case 4:{
+      stand_leg_left();
+      delay(2000);
+      break;
+    }
+     case 5:{
+      stand_leg_right();
+      delay(500);
+      break;
+    }
+     case 6:{
+       for(int k=0;k<=3;k+=1){
+        full_hiproll();
+       }
+       break;
+    }
+     case 7:{
+       for(int k=0;k<=2;k+=1){
+         right_foot_wave();
+         left_foot_wave();
+         delay(50);
+       }
+      break;
+    }
+     case 8:{
+      right_foot_wave();
+      break;
+    
+    }
+     case 9:{
+       left_foot_wave();
+       break;
+    }
+     case 10:{
+      for(int k=0;k<=2;k+=1){
+        toe_stand();
+        heal_stand();
+      }
+      break;
+    }
+     case 11:{
+      toe_stand();
+      break;
+    }
+     case 12:{
+      heal_stand();
+      break;
+    } 
+      case 13:{
+      for(int k=0;k<=5;k+=1){
+      right_foot_tap();  
+      }
+      break;        
+    }
+    case 14:{
+      for(int k=0;k<=4;k+=1){
+       right_hiproll();
+      }
+      break;
+    }         
+  }
+  randomNumber = random(1,14);
+  delay(randomNumber*1000);
+  
+}
+
+//fidget function=========================
+void fidget(){
+  
+  increment = 3;
+  delay(10000);
+  //this taps the left foot 5 times
+  for(int k=0;k<=5;k+=1){
+    left_foot_tap();  
+    }
+  //wait in the initial position
+  initialpos();
+  delay(10000);
+  //this taps the left and right foot 5 times
+  for(int k=0;k<=5;k+=1){
+    left_foot_tap();
+    right_foot_tap();
+    delay(50);  
+    }
+  //wait in the initial positon
+  initialpos();
+  delay(7000);
+  for(int k=0;k<=4;k+=1){
+     left_hiproll();
+    }
+ //wait in the initial positon
+  initialpos();
+  delay(5000);
+  stand_leg_left();
+  delay(500);
+  stand_leg_right();
+  delay(500);
+  for(int k=0;k<=3;k+=1){
+    full_hiproll();
+    }
+  initialpos();
+  delay(15000);
+  for(int k=0;k<=2;k+=1){
+     right_foot_wave();
+     left_foot_wave();
+     delay(50);
+    }
+ initialpos();
+ delay(8000);
+ for(int k=0;k<=2;k+=1){
+    toe_stand();
+    heal_stand();
+    }
+    
+ initialpos();
+ delay(5000);
+ 
+  }
+
  
 //walking function========================================
  
-void walk_forward(int steps){
+void walk_back(int steps){
   Serial.println("start the walk...");   
   //this is the variable
   int dir = 1;
@@ -455,7 +846,7 @@ void walk_forward(int steps){
 
 //walk back==============================
   
-void walk_back(int steps){
+void walk_forward(int steps){
   Serial.println("start the walk...");   
   //this is the variable
   int dir = 1;
@@ -529,7 +920,7 @@ void walk_back(int steps){
 }  
 
 void turn_right(int angle){
-  
+
   //initial position
   initialpos();
   //stand left leg
@@ -567,7 +958,7 @@ void turn_right(int angle){
 //turn right backwards, this is if the robot is walking backwards first
 void turn_right_back(int angle){
 
-//initial position
+ //initial position
   initialpos();
   //stand left leg
   stand_leg_right();
@@ -597,13 +988,13 @@ void turn_right_back(int angle){
   sweep_write(NewArray);
 
   //initial position - known state
-  initialpos();
+  initialpos();     
   }
 
 //=================================================
 //turn_left
 void turn_left(int angle){
-  
+
   //initial position
   initialpos();
   //stand left leg
@@ -634,13 +1025,14 @@ void turn_left(int angle){
   sweep_write(NewArray);
 
   //initial position - known state
-  initialpos();
+  initialpos(); 
   }
 
 //==========================================
 //turn left back
 void turn_left_back(int angle){
-   //initial position
+
+  //initial position
   initialpos();
   //stand left leg
   stand_leg_left();
@@ -670,10 +1062,5 @@ void turn_left_back(int angle){
   sweep_write(NewArray);
 
   //initial position - known state
-  initialpos();
-   
+  initialpos();    
   }
-
-
-
-
