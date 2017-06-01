@@ -81,6 +81,10 @@ void setColor(int red, int green, int blue);
 void ledRed(void );
 void ledGreen(void );
 void ledBlue(void );
+void ledWhite(void );
+void ledOff(void );
+void dance(void );
+void walkCircle(void );
 
 //this is the setup for the code
 void setup() {
@@ -152,6 +156,7 @@ void bluetoothControl()
       increment = 5;
       walk_forward(steps);
       byteRead == 0;
+      initialpos();
     }
     if (byteRead == 'b'){
       //this will be the walk back
@@ -159,6 +164,7 @@ void bluetoothControl()
       increment = 5;
       walk_back(steps);
       byteRead == 0;
+      initialpos();
     }
     if (byteRead == 'c'){
       //this will be the walk left, however we will use left leg
@@ -181,6 +187,7 @@ void bluetoothControl()
         right_foot_tap();  
       }
       byteRead == 0;
+      initialpos();
     }
     if (byteRead == 'g'){
       //this will be the walk right, however we will use right leg
@@ -188,6 +195,7 @@ void bluetoothControl()
         left_foot_tap();  
       }
       byteRead == 0;
+      initialpos();
     }
     if (byteRead == 'h'){
       //this will be the walk right, however we will use right leg
@@ -195,25 +203,28 @@ void bluetoothControl()
         full_hiproll();
        }
       byteRead == 0;
+      initialpos();
     }
     if (byteRead == 'i'){
       //this will be the walk right, however we will use right leg
       right_foot_wave();         
       byteRead == 0;
+      initialpos();
     }
     if (byteRead == 'j'){
       //this will be the walk right, however we will use right leg
       left_foot_wave();
       byteRead == 0;
+      initialpos();
     }
 
     if (byteRead == 'k'){
       // led on static
-      ledControl(HIGH);      
+      ledWhite();      
     }
     if (byteRead == 'l'){
       // led off static
-      ledControl(LOW);
+      ledOff();
     }
     if (byteRead == 'm'){
       heartBeat();
@@ -230,6 +241,17 @@ void bluetoothControl()
     }
     if (byteRead == 'q'){
       turn_left_back(40);
+    }
+    if (byteRead == 'r')
+    {
+      // dance
+      dance();
+    }
+
+    if (byteRead == 's')
+    {
+      // walk circle
+      walkCircle();
     }
   }    
 }
@@ -331,6 +353,38 @@ void ledWhite(void){
 
 void ledOff(void){
   setColor(0,0,0);
+}
+
+void dance(void ){
+  left_foot_tap();
+  initialpos();
+  right_foot_tap();
+  initialpos();
+  full_hiproll();
+  initialpos();
+  for(int k=0;k<=5;k+=1){
+    left_foot_tap();
+  }
+  initialpos();
+  for(int k=0;k<=5;k+=1){
+    full_hiproll();
+  }
+  for(int k=0;k<=5;k+=1){
+    right_foot_tap();
+  }
+  initialpos();
+}
+
+void walkCircle(void ){
+  //walk in a circle
+    steps = 10;
+    increment = 5;
+    walk_forward(steps);
+    turn_right(40);
+    turn_right(40);
+    turn_right(40);
+    turn_right(60);
+    walk_forward(steps);
 }
 
 //Sweep_write
